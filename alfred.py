@@ -23,14 +23,14 @@ def create_statistics():
 
 def get_tests(test_dir, test_type):
     try:
-        from alfred.alfred.custom.testfile import types as test_types
+        from alfred.custom.testfile import types as test_types
     except ImportError:
         from alfred import test_types
     tests = []
     for root, dirs, files in os.walk(test_dir, topdown=False):
         for name in files:
             if name.endswith('.t'):
-                tmp_test = types[test_type](root, name)
+                tmp_test = test_types[test_type](root, name)
                 if tmp_test.get_description() and tmp_test.get_name():
                     tmp_test.set('source', os.path.join(root, name))
                     tmp_test.set('test_dir', root)
@@ -43,11 +43,11 @@ def main():
     from alfred import returncodes
     import alfred.misc as misc
     try:
-        from alfred.alfred.custom.setup import types as setup_types
+        from alfred.custom.setup import types as setup_types
     except ImportError:
         from alfred import setup_types
     try:
-        from alfred.alfred.custom.teardown import types as teardown_types
+        from alfred.custom.teardown import types as teardown_types
     except ImportError:
         from alfred import teardown_types
 
