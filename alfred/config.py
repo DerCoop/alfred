@@ -31,13 +31,14 @@ class AlfredConfig:
             for key, value in config.items(section):
                 self.set(key, value)
 
-    def get(self, key):
+    def get(self, key, default=None):
         """returns the value of a key
 
         Arguments:
-        key:    name of the key
+        key:     name of the key
+        default: default value
         """
-        return self.config.get(key, None)
+        return self.config.get(key, default)
 
     def set(self, key, value):
         """set a key
