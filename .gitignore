@@ -37,3 +37,12 @@ nosetests.xml
 
 # tmps
 *~
+
+# for development
+.idea/
+
+
+# for customization
+
+alfred/custom/
+
