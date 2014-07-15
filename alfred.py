@@ -94,7 +94,7 @@ def main():
     for test in tests:
         test.run()
         rc = test.get('rc')
-        stats.update(rc)
+        stats.update(rc, name=test.get_name())
         if rc == returncodes.SUCCESS:
             log.info('\'%s\' finished successful' % test.get_name())
         elif rc == returncodes.SKIPPED:
@@ -106,7 +106,10 @@ def main():
     teardown = teardown_types[teardown_type](cfg)
     teardown.run()
 
-    stats.write()
+    if opts.verbose:
+        stats.write_verbose()
+    else:
+        stats.write()
 
 
 if __name__ == '__main__':

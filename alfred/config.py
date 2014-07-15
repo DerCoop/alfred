@@ -57,5 +57,7 @@ def get_cli_options():
                       help='<critical | error | warning | info | debug | notset>')
     parser.add_option('--config-file', action='store',
                       help='the name of the configfile')
+    parser.add_option('--verbose', action='store_true',
+                      help='print statistics verbose')
 
     return parser.parse_args()
