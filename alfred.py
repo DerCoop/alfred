@@ -84,11 +84,13 @@ def main():
     setup_type = cfg.get('setup_type', 'alfred')
     teardown_type = cfg.get('teardown_type', 'alfred')
 
-    # TODO setup
+    log.debug('setup tests')
     setup = setup_types[setup_type](cfg)
     setup.run()
 
+    log.debug('get tests')
     tests = get_tests(cfg.get('test_dir'), test_type)
+    log.debug('run tests')
     for test in tests:
         test.run()
         rc = test.get('rc')
@@ -101,7 +103,6 @@ def main():
             log.error('\'%s\' failed at cmd(s) \'%s\'' % (test.get_name(), test.get('failed_cmd')))
             if cfg.get('stop_on_error') == "True":
                 break
-    # TODO Teardown
     teardown = teardown_types[teardown_type](cfg)
     teardown.run()
 
