@@ -4,6 +4,10 @@ Alfred is a test-suite for functional tests
 
 you can use it as it is or create you own classes
 
+Return:
+0 on success,
+1 if at least one test are broken or were skipped
+
 """
 __author__ = 'coop'
 
@@ -114,6 +118,11 @@ def main():
             stats.write_verbose()
         else:
             stats.write()
+
+    if stats.all_success():
+        misc.die(0, 'All tests finished successful')
+    else:
+        misc.die(1, 'At least one test is broken or skipped')
 
 if __name__ == '__main__':
     main()

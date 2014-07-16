@@ -107,6 +107,9 @@ class TestStatistics():
         print '\n\n'
         self.write()
 
+    def all_success(self):
+        """return True if all tests executed successfull"""
+        return self.counter == self.success
 
 
 # vim: ft=py:tabstop=4:et
