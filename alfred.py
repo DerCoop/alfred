@@ -107,13 +107,16 @@ def main():
     setup_type = cfg.get('setup_type', 'alfred')
     teardown_type = cfg.get('teardown_type', 'alfred')
 
+    log.debug('get tests')
+    tests = get_tests(cfg.get('test_dir'), test_type, filter)
+    if not tests:
+        misc.die(0, 'no tests found')
+
     log.debug('setup tests')
     setup = setup_types[setup_type](cfg)
     setup.run()
 
     try:
-        log.debug('get tests')
-        tests = get_tests(cfg.get('test_dir'), test_type)
         log.debug('run tests')
         for test in tests:
             test.run()
