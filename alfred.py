@@ -12,6 +12,7 @@ Return:
 __author__ = 'coop'
 
 import os
+import sys
 import logging as log
 
 
@@ -120,7 +121,8 @@ def main():
             stats.write()
 
     if stats.all_success():
-        misc.die(0, 'All tests finished successful')
+        print('All tests finished successful')
+        sys.exit(0)
     else:
         misc.die(1, 'At least one test is broken or skipped')
 
