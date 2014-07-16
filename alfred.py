@@ -85,9 +85,9 @@ def main():
         loglevel = log.WARN
 
     if opts.filter:
-        filter = opts.filter
+        test_filter = opts.filter
     else:
-        filter = None
+        test_filter = None
 
     log.basicConfig(format=formatstring, level=loglevel)
 
@@ -108,7 +108,7 @@ def main():
     teardown_type = cfg.get('teardown_type', 'alfred')
 
     log.debug('get tests')
-    tests = get_tests(cfg.get('test_dir'), test_type, filter)
+    tests = get_tests(cfg.get('test_dir'), test_type, test_filter)
     if not tests:
         misc.die(0, 'no tests found')
 
