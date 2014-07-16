@@ -88,29 +88,32 @@ def main():
     setup = setup_types[setup_type](cfg)
     setup.run()
 
-    log.debug('get tests')
-    tests = get_tests(cfg.get('test_dir'), test_type)
-    log.debug('run tests')
-    for test in tests:
-        test.run()
-        rc = test.get('rc')
-        stats.update(rc, name=test.get_name())
-        if rc == returncodes.SUCCESS:
-            log.info('\'%s\' finished successful' % test.get_name())
-        elif rc == returncodes.SKIPPED:
-            log.warn('\'%s\' skipped: %s' % (test.get_name(), test.get('skip')))
-        elif rc == returncodes.FAILURE:
-            log.error('\'%s\' failed at cmd(s) \'%s\'' % (test.get_name(), test.get('failed_cmd')))
-            if cfg.get('stop_on_error') == "True":
-                break
-    teardown = teardown_types[teardown_type](cfg)
-    teardown.run()
+    try:
+        log.debug('get tests')
+        tests = get_tests(cfg.get('test_dir'), test_type)
+        log.debug('run tests')
+        for test in tests:
+            test.run()
+            rc = test.get('rc')
+            stats.update(rc, name=test.get_name())
+            if rc == returncodes.SUCCESS:
+                log.info('\'%s\' finished successful' % test.get_name())
+            elif rc == returncodes.SKIPPED:
+                log.warn('\'%s\' skipped: %s' % (test.get_name(), test.get('skip')))
+            elif rc == returncodes.FAILURE:
+                log.error('\'%s\' failed at cmd(s) \'%s\'' % (test.get_name(), test.get('failed_cmd')))
+                if cfg.get('stop_on_error') == "True":
+                    break
+    except KeyboardInterrupt:
+        log.debug('aborted by user')
+    finally:
+        teardown = teardown_types[teardown_type](cfg)
+        teardown.run()
 
-    if opts.verbose:
-        stats.write_verbose()
-    else:
-        stats.write()
-
+        if opts.verbose:
+            stats.write_verbose()
+        else:
+            stats.write()
 
 if __name__ == '__main__':
     main()
