@@ -16,6 +16,17 @@ import sys
 import logging as log
 
 
+def filter_test(name, filter):
+    import re
+    if not filter:
+        return True
+    if re.search(filter, name):
+        print 'found %s' % str(name)
+        return True
+    else:
+        return False
+
+
 def parse_config(configfile):
     from alfred.config import AlfredConfig
     return AlfredConfig(configfile)
@@ -26,7 +37,7 @@ def create_statistics():
     return TestStatistics()
 
 
-def get_tests(test_dir, test_type):
+def get_tests(test_dir, test_type, filter=None):
     try:
         from alfred.custom.testfile import types as test_types
     except ImportError:
@@ -35,6 +46,8 @@ def get_tests(test_dir, test_type):
     for root, dirs, files in os.walk(test_dir, topdown=False):
         for name in files:
             if name.endswith('.t'):
+                if not filter_test(name, filter):
+                    continue
                 tmp_test = test_types[test_type](root, name)
                 if tmp_test.get_description() and tmp_test.get_name():
                     tmp_test.set('source', os.path.join(root, name))
@@ -70,6 +83,11 @@ def main():
         loglevel = log.getLevelName(opts.loglevel.upper())
     else:
         loglevel = log.WARN
+
+    if opts.filter:
+        filter = opts.filter
+    else:
+        filter = None
 
     log.basicConfig(format=formatstring, level=loglevel)
 

@@ -59,5 +59,7 @@ def get_cli_options():
                       help='the name of the configfile')
     parser.add_option('--verbose', action='store_true',
                       help='print statistics verbose')
+    parser.add_option('--filter', action='store',
+                      help='RegEx filter options')
 
     return parser.parse_args()
