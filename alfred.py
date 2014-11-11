@@ -65,6 +65,7 @@ def get_tests(test_dir, test_module, test_class, cfg, test_filter=None):
 def main():
     from alfred.config import get_cli_options
     from alfred import returncodes
+    from alfred import bcolors
     import alfred.misc as misc
     import alfred.module_loader as module_loader
 
@@ -115,19 +116,25 @@ def main():
 
     # lets test
     try:
-        log.debug('run tests')
+        print('run tests\n')
         for test in tests:
+            sys.stdout.write('* %-50s ' % test.name)
+            sys.stdout.flush()
             test.run()
             rc = test.rc
             stats.update(rc, name=test.name)
             if rc == returncodes.SUCCESS:
                 log.info('\'%s\' finished successful' % test.name)
+                sys.stdout.write(bcolors.BLUE + 'OK\t\t' + bcolors.ENDC)
             elif rc == returncodes.SKIPPED:
                 log.warn('\'%s\' skipped: %s' % (test.name, test.skip))
+                sys.stdout.write(bcolors.YELLOW + 'SKIPPED\t' + bcolors.ENDC)
             elif rc == returncodes.FAILURE:
                 log.error('\'%s\' failed at cmd(s) \'%s\'' % (test.name, test.failed_command))
                 if cfg.get('stop_on_error') == "True":
                     break
+                sys.stdout.write(bcolors.RED + 'FAIL\t' + bcolors.ENDC)
+        print('')
     except KeyboardInterrupt:
         log.debug('aborted by user')
     finally:
