@@ -9,24 +9,24 @@ __author__ = 'coop'
 
 
 import ConfigParser
-import optparse
 import logging as log
+import argparse
 
 
 class AlfredConfig:
     """config class"""
-    def __init__(self, filename):
+    def __init__(self, configfile):
         self.config = {}
-        self._parse_cfg(filename)
+        self._parse_cfg(configfile)
 
-    def _parse_cfg(self, filename):
+    def _parse_cfg(self, fp):
         """parse stupid the whole config file
 
         Arguments:
-        filename:   fqn of the configfile
+        fp:     file-like object
         """
         config = ConfigParser.ConfigParser()
-        config.read(filename)
+        config.readfp(fp)
         for section in config.sections():
             for key, value in config.items(section):
                 self.set(key, value)
@@ -52,14 +52,28 @@ class AlfredConfig:
 
 def get_cli_options():
     """returns a pair (values, args) of the command line options"""
-    parser = optparse.OptionParser(usage=optparse.SUPPRESS_USAGE)
-    parser.add_option('--loglevel', action='store',
-                      help='<critical | error | warning | info | debug | notset>')
-    parser.add_option('--config-file', action='store',
-                      help='the name of the configfile')
-    parser.add_option('--verbose', action='store_true',
-                      help='print statistics verbose')
-    parser.add_option('--filter', action='store',
-                      help='RegEx filter options')
+    parser = argparse.ArgumentParser(description='test framework for functional tests')
+    parser.add_argument('-C', '--configfile', action='store', type=argparse.FileType('r'),
+                        default='cfg/config.ini',
+                        help='the name of the configfile')
+
+    parser.add_argument('-L', '--loglevel', action='store', default='warning',
+                        choices=['critical', 'error', 'warning', 'info', 'debug', 'notset'],
+                        help='set your loglevel, default = warning')
+    parser.add_argument('-v', '--verbose', action='store_true',
+                        help='print statistics verbose')
+    parser.add_argument('-O', '--overwrite', action='store',
+                        help='overwrite config options, comma separated key:value list'
+                             '(key:value,key:value)')
+    # TODO
+    todo_config = parser.add_argument_group(title='ToDo',
+                                            description='this arguments are not '
+                                                        'completely implemented')
+    todo_config.add_argument('--store-output', action='store', type=argparse.FileType('w'),
+                             help='the name of the file where the output should be stored')
+    todo_config.add_argument('-E', '--logfile', action='store', type=argparse.FileType('w'),
+                             help='the name of the file where the output should be stored')
+    todo_config.add_argument('-F', '--filter', action='store', default=None,
+                             help='RegEx filter options')
 
     return parser.parse_args()
