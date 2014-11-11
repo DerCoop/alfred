@@ -12,12 +12,13 @@ class returncodes:
     SUCCESS = 'success'
     SKIPPED = 'skipped'
 
+
 # define default classes
-from statistics import TestStatistics
-import alfred
+from alfred.statistics import TestStatistics
+import os
 
 
-class TestFile(alfred.returncodes):
+class TestClass(returncodes):
     def __init__(self, directory, filename):
         self.setup = None
         self.tests = None
