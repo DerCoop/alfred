@@ -20,25 +20,113 @@ import os
 
 class TestClass(returncodes):
     def __init__(self, directory, filename):
-        self.setup = None
-        self.tests = None
-        self.teardown = None
-        self.config = {}
-        self.stats = TestStatistics()
-        self.filename = filename
-        self.directory = directory
+        self.source = os.path.join(directory, filename)
 
-    def run(self):
-        """execute the test"""
-        return TestFile.SUCCESS
+        self.__config = {}
+        self.__stats = TestStatistics()
+        self.__filename = filename
+        self.__directory = directory
 
-    def get_description(self):
+        self.__rc = TestClass.SKIPPED
+        self.__name = 'No Name Set'
+        self.__description = 'No Description Set'
+
+        self.__source = None
+        self.__test_dir = None
+        self.__working_dir = None
+        self.__root_cfg = None
+        self.__failed_command = 'not set'
+        self.__skip = None
+
+    @property
+    def failed_command(self):
+        """return the failed command"""
+        return self.__failed_command
+
+    @failed_command.setter
+    def failed_command(self, command):
+        """set the failed command"""
+        self.__failed_command = command
+
+    @property
+    def description(self):
         """return the description of the test"""
-        return self.get(key='description', default='No Description Set')
+        return self.__description
 
-    def get_name(self):
+    @description.setter
+    def description(self, value):
+        """set the description of the test"""
+        self.__description = value
+
+    @property
+    def name(self):
         """return the name of the test"""
-        return self.get(key='name', default='No Name Set')
+        return self.__name
+
+    @name.setter
+    def name(self, value):
+        """set the name of the test"""
+        self.__name = value
+
+    @property
+    def rc(self):
+        """return the return code of the test"""
+        return self.__rc
+
+    @rc.setter
+    def rc(self, value):
+        """set the return code of the test"""
+        self.__rc = value
+
+    @property
+    def source(self):
+        """return the sourcefilename including the path"""
+        return self.__source
+
+    @source.setter
+    def source(self, value):
+        """set the sourcefile"""
+        self.__source = value
+
+    @property
+    def test_dir(self):
+        """return the test directory path"""
+        return self.__test_dir
+
+    @test_dir.setter
+    def test_dir(self, value):
+        """set the test directory"""
+        self.__test_dir = value
+
+    @property
+    def working_dir(self):
+        """return the working directory path"""
+        return self.__working_dir
+
+    @working_dir.setter
+    def working_dir(self, value):
+        """set the working directory"""
+        self.__working_dir = value
+
+    @property
+    def root_cfg(self):
+        """return the root config"""
+        return self.__root_cfg
+
+    @root_cfg.setter
+    def root_cfg(self, value):
+        """set the root config"""
+        self.__root_cfg = value
+
+    @property
+    def skip(self):
+        """return the skip message"""
+        return self.__skip
+
+    @skip.setter
+    def skip(self, message):
+        """set the skip message"""
+        self.__skip = message
 
     def get(self, key=None, default=''):
         """returns the value of a key
@@ -47,9 +135,9 @@ class TestClass(returncodes):
         key:    name of the key or the default value
         """
         if key is None:
-            return self.config
+            return self.__config
         else:
-            return self.config.get(key, default)
+            return self.__config.get(key, default)
 
     def set(self, key, value):
         """set a key
@@ -58,7 +146,7 @@ class TestClass(returncodes):
         key:    name of the key to set
         value:  the value to set
         """
-        self.config[key] = value
+        self.__config[key] = value
 
     def append(self, key, value):
         """append a value to a key
@@ -69,10 +157,10 @@ class TestClass(returncodes):
         key:    name of the key to set
         value:  the value to set
         """
-        if self.config.has_key(key):
-            self.config[key].append(value)
+        if self.__config.has_key(key):
+            self.__config[key].append(value)
         else:
-            self.config[key] = [value]
+            self.__config[key] = [value]
 
 
 class Setup:
