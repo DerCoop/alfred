@@ -88,6 +88,10 @@ def main():
             key, value = option.split(':')
             cfg.set(key, value)
 
+    logfile = cfg.get('logfile')
+    output_dir = cfg.get('out')
+    if logfile and output_dir:
+        logfile = os.path.join(output_dir, logfile)
     log.basicConfig(format=formatstring, level=loglevel, filename=logfile)
 
     stats = create_statistics()
