@@ -11,9 +11,10 @@ __author__ = 'coop'
 
 
 class TestStatistics():
-    SUCCESS = 'success'
-    FAILED = 'failed'
-    SKIPPED = 'skipped'
+    from alfred import returncodes
+    SUCCESS = returncodes.SUCCESS
+    FAILED = returncodes.FAILURE
+    SKIPPED = returncodes.SKIPPED
     COUNTER = 'counter'
 
     def __init__(self):
@@ -108,7 +109,7 @@ class TestStatistics():
         self.write()
 
     def all_success(self):
-        """return True if all tests executed successfull"""
+        """return True if all tests executed successful"""
         return self.counter == self.success
 
 
