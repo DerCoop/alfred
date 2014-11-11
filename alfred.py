@@ -83,6 +83,11 @@ def main():
     configfile = opts.configfile
 
     cfg = parse_config(configfile)
+    if opts.overwrite:
+        for option in opts.overwrite.split(','):
+            key, value = option.split(':')
+            cfg.set(key, value)
+
     log.basicConfig(format=formatstring, level=loglevel, filename=logfile)
 
     stats = create_statistics()
