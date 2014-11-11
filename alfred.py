@@ -68,6 +68,7 @@ def main():
     from alfred import bcolors
     import alfred.misc as misc
     import alfred.module_loader as module_loader
+    import time
 
     opts = get_cli_options()
 
@@ -114,12 +115,16 @@ def main():
     setup = setup_module(cfg)
     setup.run()
 
+    main_start_time = 0
+    main_end_time = 0
     # lets test
     try:
         print('run tests\n')
+        main_start_time = time.clock()
         for test in tests:
             sys.stdout.write('* %-50s ' % test.name)
             sys.stdout.flush()
+            start_time = time.clock()
             test.run()
             rc = test.rc
             stats.update(rc, name=test.name)
@@ -134,7 +139,11 @@ def main():
                 if cfg.get('stop_on_error') == "True":
                     break
                 sys.stdout.write(bcolors.RED + 'FAIL\t' + bcolors.ENDC)
+            end_time = time.clock()
+            print(' in %f s' % (end_time - start_time))
         print('')
+        main_end_time = time.clock()
+
     except KeyboardInterrupt:
         log.debug('aborted by user')
     finally:
@@ -147,6 +156,7 @@ def main():
             stats.write_verbose()
         else:
             stats.write()
+        print('test time: %f s' % (main_end_time - main_start_time))
 
     if stats.all_success():
         print('All tests finished successful')
