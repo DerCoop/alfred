@@ -182,29 +182,17 @@ class TestClass(returncodes):
             self.__config[key] = [value]
 
 
-class Setup:
+class SetupClass:
     def __init__(self, cfg):
         self.cfg = cfg
 
     def run(self):
-        print self.cfg.get('name')
+        print('setup: %s' % self.cfg.get('name'))
 
 
-class TearDown:
+class TearDownClass:
     def __init__(self, cfg):
         self.cfg = cfg
 
     def run(self):
-        print self.cfg.get('name')
-
-setup_types = {
-    'alfred': Setup
-}
-
-test_types = {
-    'alfred': TestFile
-}
-
-teardown_types = {
-    'alfred': TearDown
-}
+        print('teardown: %s' % self.cfg.get('name'))

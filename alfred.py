@@ -37,22 +37,29 @@ def create_statistics():
     return TestStatistics()
 
 
-def get_tests(test_dir, test_type, filter=None):
-    try:
-        from alfred.custom.testfile import types as test_types
-    except ImportError:
-        from alfred import test_types
+def get_tests(test_dir, test_module, test_class, cfg, test_filter=None):
+    import alfred.module_loader as module_loader
+    import alfred.misc as misc
+    loader = module_loader.Loader(cfg.get('module_path', default='alfred'))
+    test_module = loader.load_class(test_module, test_class)
+    git_root = misc.get_git_root()
+
     tests = []
-    for root, dirs, files in os.walk(test_dir, topdown=False):
-        for name in files:
-            if name.endswith('.t'):
-                if not filter_test(name, filter):
-                    continue
-                tmp_test = test_types[test_type](root, name)
-                if tmp_test.get_description() and tmp_test.get_name():
-                    tmp_test.set('source', os.path.join(root, name))
-                    tmp_test.set('test_dir', root)
-                    tests.append(tmp_test)
+    for tdir in test_dir.split():
+        for root, dirs, files in os.walk(tdir, topdown=False):
+            for name in files:
+                if name.endswith('.t'):
+                    log.info('found %s' % name)
+                    if not filter_test(name, test_filter):
+                        raise NotImplementedError
+                    tmp_test = test_module(root, name)
+                    if tmp_test.description and tmp_test.name:
+                        tmp_test.source = os.path.join(root, name)
+                        tmp_test.test_dir = root
+                        tmp_test.working_dir = os.path.join(git_root, cfg.get('working_dir', root))
+                        tmp_test.root_cfg = cfg
+                        log.debug('add test %s', tmp_test.name)
+                        tests.append(tmp_test)
     return tests
 
 
@@ -60,80 +67,64 @@ def main():
     from alfred.config import get_cli_options
     from alfred import returncodes
     import alfred.misc as misc
-    try:
-        from alfred.custom.setup import types as setup_types
-    except ImportError:
-        from alfred import setup_types
-    try:
-        from alfred.custom.teardown import types as teardown_types
-    except ImportError:
-        from alfred import teardown_types
+    import alfred.module_loader as module_loader
 
-
-    configfile = ''
-    opts, args = get_cli_options()
+    opts = get_cli_options()
 
     # configure logger
-    # reset old log settings
     if log.root:
         del log.root.handlers[:]
 
     formatstring = '[%(levelname)s]: alfred: %(message)s'
-    if opts.loglevel:
-        loglevel = log.getLevelName(opts.loglevel.upper())
-    else:
-        loglevel = log.WARN
+    loglevel = log.getLevelName(opts.loglevel.upper())
 
-    if opts.filter:
-        test_filter = opts.filter
-    else:
-        test_filter = None
-
-    log.basicConfig(format=formatstring, level=loglevel)
 
     # parse config
-    if opts.config_file:
-        configfile = opts.config_file
+    configfile = opts.configfile
 
-    if not os.path.isfile(configfile):
-        msg = 'config file did not exist (' + configfile + ')'
-        misc.die(-1, msg)
-
-    # lets test
     cfg = parse_config(configfile)
+    log.basicConfig(format=formatstring, level=loglevel, filename=logfile)
+
     stats = create_statistics()
 
-    test_type = cfg.get('test_type', 'alfred')
-    setup_type = cfg.get('setup_type', 'alfred')
-    teardown_type = cfg.get('teardown_type', 'alfred')
+    test_module = cfg.get('test_module', default='alfred')
+    test_class = cfg.get('test_class', default='TestClass')
+    setup_class = cfg.get('setup_class', default='SetupClass')
+    teardown_class = cfg.get('teardown_class', default='TearDownClass')
+    loader = module_loader.Loader(cfg.get('module_path', default='alfred'))
 
     log.debug('get tests')
-    tests = get_tests(cfg.get('test_dir'), test_type, test_filter)
+    tests = get_tests(cfg.get('test_dir', default='examples'), test_module, test_class, cfg,
+                      test_filter)
     if not tests:
         misc.die(0, 'no tests found')
 
     log.debug('setup tests')
-    setup = setup_types[setup_type](cfg)
+    setup_module = loader.load_class(test_module, setup_class)
+    setup = setup_module(cfg)
     setup.run()
 
+    # lets test
     try:
         log.debug('run tests')
         for test in tests:
             test.run()
-            rc = test.get('rc')
-            stats.update(rc, name=test.get_name())
+            rc = test.rc
+            stats.update(rc, name=test.name)
             if rc == returncodes.SUCCESS:
-                log.info('\'%s\' finished successful' % test.get_name())
+                log.info('\'%s\' finished successful' % test.name)
             elif rc == returncodes.SKIPPED:
-                log.warn('\'%s\' skipped: %s' % (test.get_name(), test.get('skip')))
+                log.warn('\'%s\' skipped: %s' % (test.name, test.skip))
             elif rc == returncodes.FAILURE:
-                log.error('\'%s\' failed at cmd(s) \'%s\'' % (test.get_name(), test.get('failed_cmd')))
+                log.error('\'%s\' failed at cmd(s) \'%s\'' % (test.name, test.failed_command))
                 if cfg.get('stop_on_error') == "True":
                     break
     except KeyboardInterrupt:
         log.debug('aborted by user')
     finally:
-        teardown = teardown_types[teardown_type](cfg)
+        log.debug('teardown tests')
+        teardown_module = loader.load_class(test_module, teardown_class)
+        teardown = teardown_module(cfg)
         teardown.run()
 
         if opts.verbose:
@@ -144,8 +135,12 @@ def main():
     if stats.all_success():
         print('All tests finished successful')
         sys.exit(0)
+    elif stats.get(returncodes.FAILURE):
+        misc.die(1, 'At least one test is broken')
     else:
-        misc.die(1, 'At least one test is broken or skipped')
+        log.warn('At least one test is skipped')
+        sys.exit(0)
 
 if __name__ == '__main__':
     main()
+
