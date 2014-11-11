@@ -16,17 +16,6 @@ import sys
 import logging as log
 
 
-def filter_test(name, filter):
-    import re
-    if not filter:
-        return True
-    if re.search(filter, name):
-        print 'found %s' % str(name)
-        return True
-    else:
-        return False
-
-
 def parse_config(configfile):
     from alfred.config import AlfredConfig
     return AlfredConfig(configfile)
@@ -35,6 +24,16 @@ def parse_config(configfile):
 def create_statistics():
     from alfred.statistics import TestStatistics
     return TestStatistics()
+
+
+def filter_test(name, test_filter):
+    import re
+    if not test_filter:
+        return True
+    if re.search(test_filter, name):
+        return True
+    else:
+        return False
 
 
 def get_tests(test_dir, test_module, test_class, cfg, test_filter=None):
@@ -78,6 +77,7 @@ def main():
     formatstring = '[%(levelname)s]: alfred: %(message)s'
     loglevel = log.getLevelName(opts.loglevel.upper())
 
+    test_filter = opts.filter
 
     # parse config
     configfile = opts.configfile
