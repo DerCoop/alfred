@@ -25,6 +25,30 @@ class TestStatistics():
         self._broken_tests = []
         self._skipped_tests = []
 
+    def _add_broken_test(self, name):
+        """add the name of the broken test to a list
+
+        Arguments:
+        name:   the name of the broken test
+        """
+        self._broken_tests.append(str(name))
+
+    def _add_skipped_test(self, name):
+        """add the name of a skipped test to a list
+
+        Arguments:
+        name:   the name of the skipped test
+        """
+        self._skipped_tests.append(str(name))
+
+    def _get_broken_tests(self):
+        """return a list with the names of all broken tests"""
+        return self._broken_tests
+
+    def _get_skipped_tests(self):
+        """return a list with the names of all skipped tests"""
+        return self._skipped_tests
+
     def update(self, counter, name=None):
         """increase the testcounter and the statistic counter for the returnvalue
 
@@ -62,50 +86,31 @@ class TestStatistics():
         """write out the whole statistic"""
         from alfred import bcolors
 
-        print '\nsummary:\n--------\n'
-        print bcolors.BLUE + 'success:\t%s' % self.get(TestStatistics.SUCCESS)
-        print bcolors.RED + 'failed: \t%s' % self.get(TestStatistics.FAILED)
-        print bcolors.YELLOW + 'skipped:\t%s' % self.get(TestStatistics.SKIPPED)
-        print bcolors.ENDC
-        print 'executed tests:\t%s\n' % self.get(TestStatistics.COUNTER)
-
-    def _add_broken_test(self, name):
-        """add the name of the broken test to a list
-
-        Arguments:
-        name:   the name of the broken test
-        """
-        self._broken_tests.append(str(name))
-
-    def _add_skipped_test(self, name):
-        """add the name of a skipped test to a list
-
-        Arguments:
-        name:   the name of the skipped test
-        """
-        self._skipped_tests.append(str(name))
-
-    def _get_broken_tests(self):
-        """return a list with the names of all broken tests"""
-        return self._broken_tests
-
-    def _get_skipped_tests(self):
-        """return a list with the names of all skipped tests"""
-        return self._skipped_tests
+        print('\nsummary:\n--------\n')
+        print(bcolors.BLUE + 'success:\t%s' % self.get(TestStatistics.SUCCESS))
+        print(bcolors.RED + 'failed: \t%s' % self.get(TestStatistics.FAILED))
+        print(bcolors.YELLOW + 'skipped:\t%s' % self.get(TestStatistics.SKIPPED))
+        print(bcolors.ENDC)
+        print('executed tests:\t%s\n' % self.get(TestStatistics.COUNTER))
 
     def write_verbose(self):
         """write which tests are broken or skipped"""
         from alfred import bcolors
 
-        print bcolors.RED + 'failed tests:'
-        for test in self._get_broken_tests():
-            print '\t%s' % str(test)
+        # TODO expand for reasons
+        if self.failed != 0:
+            print(bcolors.RED + 'failed tests:')
+            for test in self._get_broken_tests():
+                print('\t%s' % str(test))
+            print('\n')
 
-        print bcolors.YELLOW + 'skipped tests:'
-        for test in self._get_skipped_tests():
-            print '\t%s' % str(test)
+        if self.skipped != 0:
+            print(bcolors.YELLOW + 'skipped tests:')
+            for test in self._get_skipped_tests():
+                print('\t%s' % str(test))
+            print('\n')
 
-        print '\n\n'
+        print('\n')
         self.write()
 
     def all_success(self):
