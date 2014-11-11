@@ -128,6 +128,25 @@ class TestClass(returncodes):
         """set the skip message"""
         self.__skip = message
 
+    def __check_skip(self):
+        """check if the test is skipped
+
+            Note: set the var somewhere
+        """
+        if self.skip:
+            return True
+        else:
+            return False
+
+    def run(self):
+        """execute the test"""
+        self.rc = TestClass.SUCCESS
+
+        if self.__check_skip():
+            return
+
+        return
+
     def get(self, key=None, default=''):
         """returns the value of a key
 
