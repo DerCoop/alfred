@@ -9,7 +9,7 @@ Parse config file for alfred
 __author__ = 'coop'
 
 
-import ConfigParser
+import configparser
 import logging as log
 import argparse
 
@@ -26,7 +26,7 @@ class AlfredConfig:
         Arguments:
         fp:     file-like object
         """
-        config = ConfigParser.ConfigParser()
+        config = configparser.ConfigParser()
         config.readfp(fp)
         for section in config.sections():
             for key, value in config.items(section):
