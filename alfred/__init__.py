@@ -22,14 +22,14 @@ class TestClass(returncodes):
     def __init__(self, directory, filename):
         self.source = os.path.join(directory, filename)
 
-        self.__config = {}
+        self.__config = self._parse_cfg(self.source, 'main')
         self.__stats = TestStatistics()
         self.__filename = filename
         self.__directory = directory
 
         self.__rc = TestClass.SKIPPED
-        self.__name = 'No Name Set'
-        self.__description = 'No Description Set'
+        self.__name = self.__config.get('name', 'No Name Set')
+        self.__description = self.__config.get('description', 'No Description Set')
 
         self.__source = None
         self.__test_dir = None
@@ -127,6 +127,28 @@ class TestClass(returncodes):
     def skip(self, message):
         """set the skip message"""
         self.__skip = message
+
+    @staticmethod
+    def _parse_cfg(filename, section):
+        """parse stupid the whole config file
+
+        Arguments:
+        filename:   filename
+        section:    the section to parse
+
+        Return:
+        dictionary with all key-value pairs (or empty)
+        """
+        # TODO validate the testfile
+        import ConfigParser
+        cfg = {}
+        config = ConfigParser.ConfigParser()
+        config.read(filename)
+        if not config.has_section(section):
+            return
+        for key, value in config.items(section):
+            cfg[key] = value
+        return cfg
 
     def __check_skip(self):
         """check if the test is skipped
