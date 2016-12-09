@@ -129,10 +129,35 @@ def main():
             cfg.set(key, value)
 
     logfile = cfg.get('logfile')
-    output_dir = cfg.get('out')
-    if logfile and output_dir:
-        logfile = os.path.join(output_dir, logfile)
-    log.basicConfig(format=formatstring, level=loglevel, filename=logfile)
+    working_dir = cfg.get('working_dir')
+    git_root = misc.get_git_root()
+    if working_dir:
+        if git_root:
+            working_dir = os.path.normpath(os.path.join(git_root, working_dir))
+
+    if not opts.debug and logfile and working_dir:
+        try:
+            os.makedirs(working_dir)
+        except OSError as ex:
+            # file exists
+            #print ex
+            pass
+        logfile = os.path.normpath(os.path.join(working_dir, logfile))
+        # remove the main logfile if there is an old version
+        try:
+            os.remove(logfile)
+        except OSError as ex:
+            # the file did not exist
+            pass
+        # create the base path of the logfile
+        try:
+            os.makedirs(os.path.dirname(logfile))
+        except OSError as ex:
+            # directory already exists
+            pass
+        log.basicConfig(format=formatstring, level=loglevel, filename=logfile)
+    else:
+        log.basicConfig(format=formatstring, level=loglevel)
 
     stats = create_statistics()
 

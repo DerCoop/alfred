@@ -68,6 +68,8 @@ def get_cli_options():
     parser.add_argument('-F', '--filter', action='append', default=None, nargs='+',
                         help='RegEx filter options, the first argument must be the filter type '
                              '(n == name, d == directory [relative from the test-dir])')
+    parser.add_argument('-d', '--debug', action='store_true',
+                        help='print logging to stdout')
     # TODO
     todo_config = parser.add_argument_group(title='ToDo',
                                             description='this arguments are not '
