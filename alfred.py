@@ -83,9 +83,11 @@ def get_tests(test_dir, test_module, test_class, cfg, test_filter=None):
                     log.info('found %s' % name)
                     tmp_test = test_module(root, name)
                     if tmp_test.description and tmp_test.name:
-                        tmp_test.source = os.path.join(root, name)
+                        tmp_test.source = os.path.normpath(os.path.join(root, name))
                         tmp_test.test_dir = root
-                        tmp_test.working_dir = os.path.join(git_root, cfg.get('working_dir', root))
+                        tmp_test.working_dir = os.path.normpath(os.path.join(git_root,
+                                                                             cfg.get('working_dir',
+                                                                                     root)))
                         tmp_test.root_cfg = cfg
                         if filter_test(tmp_test, test_filter):
                             log.debug('add test %s',
@@ -110,6 +112,10 @@ def main():
 
     formatstring = '[%(levelname)s]: alfred: %(message)s'
     loglevel = log.getLevelName(opts.loglevel.upper())
+
+    # capture warnings to logging
+    # https://urllib3.readthedocs.org/en/latest/security.html#insecureplatformwarning
+    log.captureWarnings(True)
 
     test_filter = opts.filter
 
@@ -142,21 +148,26 @@ def main():
     if not tests:
         misc.die(0, 'no tests found')
 
+    if opts.sorted:
+        tests.sort(key=lambda elem: elem.source)
+    elif opts.random:
+        import random
+        random.shuffle(tests)
+
     log.debug('setup tests')
     setup_module = loader.load_class(test_module, setup_class)
     setup = setup_module(cfg)
     setup.run()
 
     main_start_time = 0
-    main_end_time = 0
     # lets test
     try:
         print('run tests\n')
-        main_start_time = time.clock()
+        main_start_time = time.time()
         for test in tests:
             sys.stdout.write('* %-50s ' % test.name)
             sys.stdout.flush()
-            start_time = time.clock()
+            start_time = time.time()
             test.run()
             rc = test.rc
             stats.update(rc, name=test.name)
@@ -171,14 +182,14 @@ def main():
                 if cfg.get('stop_on_error') == "True":
                     break
                 sys.stdout.write(bcolors.RED + 'FAIL\t' + bcolors.ENDC)
-            end_time = time.clock()
+            end_time = time.time()
             print(' in %f s' % (end_time - start_time))
-        print('')
-        main_end_time = time.clock()
 
     except KeyboardInterrupt:
         log.debug('aborted by user')
     finally:
+        print('')
+        main_end_time = time.time()
         log.debug('teardown tests')
         teardown_module = loader.load_class(test_module, teardown_class)
         teardown = teardown_module(cfg)
