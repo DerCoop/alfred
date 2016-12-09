@@ -1,4 +1,5 @@
-""" Parse config file for alfred
+"""
+Parse config file for alfred
 
     module for parsing the configuration and the command line interface arguments
 
@@ -70,6 +71,13 @@ def get_cli_options():
                              '(n == name, d == directory [relative from the test-dir])')
     parser.add_argument('-d', '--debug', action='store_true',
                         help='print logging to stdout')
+    parser.add_argument('-s', '--sorted', action='store_true',
+                        help='sort the tests by their names')
+    parser.add_argument('-r', '--random', action='store_true',
+                        help='run tests in random order')
+    parser.add_argument('--smoke', dest='filter', action='append_const', const='alfred smoke'.split(),
+                        help='run only smoke tests')
+
     # TODO
     todo_config = parser.add_argument_group(title='ToDo',
                                             description='this arguments are not '
