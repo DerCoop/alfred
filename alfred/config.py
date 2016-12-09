@@ -63,8 +63,11 @@ def get_cli_options():
     parser.add_argument('-v', '--verbose', action='store_true',
                         help='print statistics verbose')
     parser.add_argument('-O', '--overwrite', action='store',
-                        help='overwrite config options, comma separated key:value list'
+                        help='overwrite config options, comma separated key:value list '
                              '(key:value,key:value)')
+    parser.add_argument('-F', '--filter', action='append', default=None, nargs='+',
+                        help='RegEx filter options, the first argument must be the filter type '
+                             '(n == name, d == directory [relative from the test-dir])')
     # TODO
     todo_config = parser.add_argument_group(title='ToDo',
                                             description='this arguments are not '
@@ -73,7 +76,5 @@ def get_cli_options():
                              help='the name of the file where the output should be stored')
     todo_config.add_argument('-E', '--logfile', action='store', type=argparse.FileType('w'),
                              help='the name of the file where the output should be stored')
-    todo_config.add_argument('-F', '--filter', action='store', default=None,
-                             help='RegEx filter options')
 
     return parser.parse_args()
