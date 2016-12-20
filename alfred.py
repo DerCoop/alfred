@@ -178,8 +178,10 @@ def main():
     loader = module_loader.Loader(cfg.get('module_path', default='alfred'))
 
     log.debug('get tests')
-    tests = get_tests(cfg.get('test_dir', default='examples'), test_module, test_class, cfg,
-                      test_filter)
+    abs_test_dir = os.path.join(os.path.dirname(os.path.relpath(__file__)),
+                                cfg.get('test_dir', default='example'))
+    abs_test_dir = cfg.get('test_dir', default='example')
+    tests = get_tests(abs_test_dir, test_module, test_class, cfg, test_filter)
     if not tests:
         misc.die(0, 'no tests found')
 

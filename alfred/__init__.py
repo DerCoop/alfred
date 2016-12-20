@@ -21,7 +21,6 @@ import os
 class TestClass(returncodes):
     def __init__(self, directory, filename):
         self.source = os.path.join(directory, filename)
-
         self.__config = self._parse_cfg(self.source, 'main')
         self.__stats = TestStatistics()
         self.__filename = filename
@@ -31,7 +30,6 @@ class TestClass(returncodes):
         self.__name = self.__config.get('name', 'No Name Set')
         self.__description = self.__config.get('description',
                                                'No Description Set')
-        self.__source = None
 
         self.__test_dir = None
         self.__working_dir = None
