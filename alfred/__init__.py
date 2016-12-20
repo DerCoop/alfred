@@ -29,9 +29,10 @@ class TestClass(returncodes):
 
         self.__rc = TestClass.SKIPPED
         self.__name = self.__config.get('name', 'No Name Set')
-        self.__description = self.__config.get('description', 'No Description Set')
-
+        self.__description = self.__config.get('description',
+                                               'No Description Set')
         self.__source = None
+
         self.__test_dir = None
         self.__working_dir = None
         self.__root_cfg = None

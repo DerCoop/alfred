@@ -43,17 +43,21 @@ def filter_test(test, test_filters):
 
     for test_filter in test_filters:
         if len(test_filter) < 2:
-            misc.die(1, 'Filter option needs at least 2 arguments, filter type and filter value')
+            misc.die(1, 'Filter option needs at least 2 arguments: '
+                        'filter type and filter value')
         filter_type = test_filter[0]
         if filter_type == 'd':
             # filter by directory
-            log.info('filter by directory %s, test_dir %s' % (test_filter[1:], test.test_dir))
+            log.info('filter by directory %s, test_dir %s' % (test_filter[1:],
+                                                              test.test_dir))
             for directory in test_filter[1:]:
-                if os.path.normpath(test.test_dir) == os.path.normpath(directory):
+                if os.path.normpath(test.test_dir) == \
+                        os.path.normpath(directory):
                     return True
         elif filter_type == 'n':
             # filter by test name
-            log.info('filter by test-name %s, test.name %s' % (test_filter[1:], test.name))
+            log.info('filter by test-name %s, test.name %s' % (test_filter[1:],
+                                                               test.name))
             for name in test_filter[1:]:
                 # check if the filter is an part of the testname
                 if re.search(name, test.name):
@@ -83,15 +87,21 @@ def get_tests(test_dir, test_module, test_class, cfg, test_filter=None):
                     log.info('found %s' % name)
                     tmp_test = test_module(root, name)
                     if tmp_test.description and tmp_test.name:
-                        tmp_test.source = os.path.normpath(os.path.join(root, name))
+                        tmp_test.source = os.path.normpath(os.path.join(root,
+                                                                        name))
                         tmp_test.test_dir = root
-                        tmp_test.working_dir = os.path.normpath(os.path.join(git_root,
-                                                                             cfg.get('working_dir',
-                                                                                     root)))
+                        tmp_test.working_dir = os.path.normpath(
+                            os.path.join(git_root, cfg.get('working_dir',
+                                                           root))
+                        )
                         tmp_test.root_cfg = cfg
                         if filter_test(tmp_test, test_filter):
                             log.debug('add test %s',
-                                      os.path.normpath(os.path.join(tmp_test.test_dir, tmp_test.name)))
+                                      os.path.normpath(
+                                          os.path.join(tmp_test.test_dir,
+                                                       tmp_test.name)
+                                      )
+                            )
                             tests.append(tmp_test)
     return tests
 
