@@ -48,16 +48,18 @@ def filter_test(test, test_filters):
         filter_type = test_filter[0]
         if filter_type == 'd':
             # filter by directory
-            log.info('filter by directory %s, test_dir %s' % (test_filter[1:],
-                                                              test.test_dir))
+            log.info('filter by directory {}, test_dir {}'.format(
+                test_filter[1:], test.test_dir)
+            )
             for directory in test_filter[1:]:
                 if os.path.normpath(test.test_dir) == \
                         os.path.normpath(directory):
                     return True
         elif filter_type == 'n':
             # filter by test name
-            log.info('filter by test-name %s, test.name %s' % (test_filter[1:],
-                                                               test.name))
+            log.info('filter by test-name {}, test.name {}'.format(
+                test_filter[1:], test.name)
+            )
             for name in test_filter[1:]:
                 # check if the filter is an part of the testname
                 if re.search(name, test.name):
@@ -67,7 +69,7 @@ def filter_test(test, test_filters):
             if test_filter[1] == 'smoke':
                 return test.cfg.get('smoke', None) == 'True'
         else:
-            misc.die(1, 'unknown filter type %s' % filter_type)
+            misc.die(1, 'unknown filter type {}'.format(filter_type))
 
     return False
 
@@ -84,7 +86,7 @@ def get_tests(test_dir, test_module, test_class, cfg, test_filter=None):
         for root, dirs, files in os.walk(tdir, topdown=False):
             for name in files:
                 if name.endswith('.t'):
-                    log.info('found %s' % name)
+                    log.info('found {}'.format(name))
                     tmp_test = test_module(root, name)
                     if tmp_test.description and tmp_test.name:
                         tmp_test.source = os.path.normpath(os.path.join(root,
@@ -96,12 +98,10 @@ def get_tests(test_dir, test_module, test_class, cfg, test_filter=None):
                         )
                         tmp_test.root_cfg = cfg
                         if filter_test(tmp_test, test_filter):
-                            log.debug('add test %s',
-                                      os.path.normpath(
-                                          os.path.join(tmp_test.test_dir,
-                                                       tmp_test.name)
-                                      )
-                            )
+                            log.debug('add test {}'.format(
+                                os.path.normpath(os.path.join(tmp_test.test_dir,
+                                                 tmp_test.name))
+                            ))
                             tests.append(tmp_test)
     return tests
 
@@ -150,7 +150,7 @@ def main():
             os.makedirs(working_dir)
         except OSError as ex:
             # file exists
-            #print ex
+            log.debug('unable to create working dir: {}'.format(ex))
             pass
         logfile = os.path.normpath(os.path.join(working_dir, logfile))
         # remove the main logfile if there is an old version
@@ -158,12 +158,14 @@ def main():
             os.remove(logfile)
         except OSError as ex:
             # the file did not exist
+            log.debug('unable to remove logfile: {}'.format(ex))
             pass
         # create the base path of the logfile
         try:
             os.makedirs(os.path.dirname(logfile))
         except OSError as ex:
             # directory already exists
+            log.debug('unable to create logfile dir: {}'.format(ex))
             pass
         log.basicConfig(format=formatstring, level=loglevel, filename=logfile)
     else:
@@ -209,18 +211,20 @@ def main():
             rc = test.rc
             stats.update(rc, name=test.name)
             if rc == returncodes.SUCCESS:
-                log.info('\'%s\' finished successful' % test.name)
+                log.info('\'{}\' finished successful'.format(test.name))
                 sys.stdout.write(bcolors.BLUE + 'OK\t\t' + bcolors.ENDC)
             elif rc == returncodes.SKIPPED:
-                log.warn('\'%s\' skipped: %s' % (test.name, test.skip))
+                log.warn('\'{}\' skipped: {}'.format(test.name, test.skip))
                 sys.stdout.write(bcolors.YELLOW + 'SKIPPED\t' + bcolors.ENDC)
             elif rc == returncodes.FAILURE:
-                log.error('\'%s\' failed at cmd(s) \'%s\'' % (test.name, test.failed_command))
+                log.error('\'{}\' failed at cmd(s) \'{}\''.format(
+                    test.name, test.failed_command)
+                )
                 if cfg.get('stop_on_error') == "True":
                     break
                 sys.stdout.write(bcolors.RED + 'FAIL\t' + bcolors.ENDC)
             end_time = time.time()
-            print(' in %f s' % (end_time - start_time))
+            print(' in {} s'.format(end_time - start_time))
 
     except KeyboardInterrupt:
         log.debug('aborted by user')
@@ -236,7 +240,7 @@ def main():
             stats.write_verbose()
         else:
             stats.write()
-        print('test time: %f s' % (main_end_time - main_start_time))
+        print('test time: {} s'.format(main_end_time - main_start_time))
 
     if stats.all_success():
         print('All tests finished successful')
@@ -244,7 +248,7 @@ def main():
     elif stats.get(returncodes.FAILURE):
         misc.die(1, 'At least one test is broken')
     else:
-        log.warn('At least one test is skipped')
+        log.warning('At least one test is skipped')
         sys.exit(0)
 
 if __name__ == '__main__':
