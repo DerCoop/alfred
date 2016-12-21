@@ -16,7 +16,8 @@ class Loader:
             mod = self.load_mod(module_name)
             class_ = getattr(mod, class_name)
             return class_
-        except ImportError:
+        except ImportError as e:
+            print(e)
             print('can not load class %s' % str(class_name))
 
     @staticmethod
@@ -27,5 +28,6 @@ class Loader:
             else:
                 mod = __import__(module_name)
             return mod
-        except ImportError:
+        except ImportError as e:
+            print(e)
             print('can not load module %s' % str(module_name))
