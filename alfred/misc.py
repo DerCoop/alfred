@@ -81,4 +81,4 @@ def get_git_root():
     """return the root of the current git"""
     import subprocess
     cmd = ['git', 'rev-parse', '--show-toplevel']
-    return str(subprocess.check_output(cmd).strip())
+    return str(subprocess.check_output(cmd).strip(), 'utf-8')
